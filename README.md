@@ -7,4 +7,4 @@ git clone <repo>
 npm install
 npm  run dev 
 ```
-(live demo)[https://todo-list-ts-ashen.vercel.app/]
+[live demo](https://todolist-ts-eym.vercel.app/)
