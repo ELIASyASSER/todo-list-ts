@@ -12,15 +12,13 @@ const tasks_storage = storage?JSON.parse(storage):[]
 const [tasks,dispatch] = useReducer(reducer,tasks_storage)
 const [text,setText] = useState('')
 const [editingId,setEditingId] = useState<number|null>(null)
-const inputRef = useRef<HTMLInputElement>(null)
 const handleSubmit = (e:FormEvent<HTMLFormElement>):void=>{
   e.preventDefault()
   if(!text){
     alert("please enter a task")
     return;
   }
-  if(editingId){
-    inputRef.current?.focus()
+  if(editingId!=null){
     dispatch({
       type:"UPDATE",
       payload:{id:editingId,description:text}
@@ -60,7 +58,7 @@ const handleSubmit = (e:FormEvent<HTMLFormElement>):void=>{
       <main className='app'>
           <h1>To-do Input</h1>
             <form className='container' onSubmit={handleSubmit}>
-              <input type="text" ref={inputRef} value={text} onChange={(e)=>setText(e.target.value)}placeholder={editingId?'Enter new Item':"Enter Item to add"} />
+              <input type="text" value={text} onChange={(e)=>setText(e.target.value)}placeholder={editingId?'Enter new Item':"Enter Item to add"} />
               <button className={`${editingId?"edit":"submit"}`} type='submit'>{editingId?"Update item":"Add Item"}</button>
             </form>
             <section className="bottom">
@@ -74,7 +72,8 @@ const handleSubmit = (e:FormEvent<HTMLFormElement>):void=>{
                   <input id={`task-${item.id}`} hidden onChange={()=>toggleCase(item.id)} type="checkbox"   checked={item.isCompleted}  />
                   <div className="btns">
                       
-                      <button onClick={()=>setEditingId(item.id)}><FaPen size={26} color='green'/></button>
+                      <button onClick={()=>{setText(item.description);
+                        setEditingId(item.id)}}><FaPen size={26} color='green'/></button>
 
 
                       <button onClick={()=>dispatch({type:"DELETE",payload:item.id})}><FaTrash size={26} color='red'/></button>
