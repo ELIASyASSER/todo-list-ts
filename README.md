@@ -2,7 +2,8 @@
 ## i used UseReducer for state management
 
 **How to run locally**
-`git clone <repo>`
-`npm install`
-`npm run dev `
- 
+```
+git clone <repo>
+npm install
+npm  dev 
+```
