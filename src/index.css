@@ -102,6 +102,9 @@ ul{
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  @media (max-width:767px) {
+    width: 90%;
+  }
   h1{
     margin-bottom: 2rem;
   }
@@ -190,6 +193,9 @@ ul{
       .task{
         padding: 18px 22px;
         font-size: 1.6rem;
+        @media (max-width:767px) {
+          font-size: 1.1rem;
+        }
         flex: 1;
         height: 100%;
         cursor: pointer;
@@ -203,6 +209,10 @@ ul{
         button{
           padding: 8px;
           margin-right: 1rem;
+          @media (max-width:767px) {
+            padding: 3px;
+            margin-right: 0.5rem;
+          }
         }
       }
     }

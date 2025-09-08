@@ -73,7 +73,10 @@ const handleSubmit = (e:FormEvent<HTMLFormElement>):void=>{
                   <div className="btns">
                       
                       <button onClick={()=>{setText(item.description);
-                        setEditingId(item.id)}}><FaPen size={26} color='green'/></button>
+                        setEditingId(item.id);scroll({
+                          top:0,
+                          behavior:"smooth"
+                        })}}><FaPen size={26} color='green'/></button>
 
 
                       <button onClick={()=>dispatch({type:"DELETE",payload:item.id})}><FaTrash size={26} color='red'/></button>
