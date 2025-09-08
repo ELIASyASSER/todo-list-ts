@@ -5,5 +5,6 @@
 ```
 git clone <repo>
 npm install
-npm  dev 
+npm  run dev 
 ```
+[live demo](https://todolist-ts-eym.vercel.app/)
