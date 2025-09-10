@@ -1,96 +1,76 @@
+import { useCallback, useEffect, useState } from "react"
 
-import {  useEffect, useReducer, useRef, useState, type FormEvent } from 'react'
-import {FaPen,FaTrash} from "react-icons/fa"
-import reducer from "./states/reducer"
-import type { Task } from './states/types'
-
-function App() {
-
-
-const storage = localStorage.getItem("tasks")
-const tasks_storage = storage?JSON.parse(storage):[]
-const [tasks,dispatch] = useReducer(reducer,tasks_storage)
-const [text,setText] = useState('')
-const [editingId,setEditingId] = useState<number|null>(null)
-const handleSubmit = (e:FormEvent<HTMLFormElement>):void=>{
-  e.preventDefault()
-  if(!text){
-    alert("please enter a task")
-    return;
+type CryptoPrices = {
+  [key: string]: {
+    usd: number
   }
-  if(editingId!=null){
-    dispatch({
-      type:"UPDATE",
-      payload:{id:editingId,description:text}
-    })
-    setEditingId(null)
-  }else{
-    dispatch({type:"ADD",payload:{
-      id:Date.now(),
-      description:text,
-      isCompleted:false,
-    }})
-  }
-
-  setText('')
-
 }
 
-  function toggleCase(id:number):void{
-    dispatch({
-      type:"TOGGLE",
-      payload:id
-    })
-  }
+const App = () => {
+  const [info, setInfo] = useState<CryptoPrices>({})
+  const [search, setSearch] = useState<string>("")
+  const [loading, setLoading] = useState<boolean>(true)
 
-  
-  function updateStorage(tasks:Task[]):void{
-    localStorage.setItem("tasks",JSON.stringify(tasks))
-  }
+  const url: string =
+    "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tether,binancecoin,usd-coin,ripple,cardano,dogecoin,solana,polkadot,litecoin,tron,shiba-inu,avalanche-2,dai,polygon,uniswap,cosmos,chainlink,stellar,monero,vechain,filecoin,theta-token,ethereum-classic,wrapped-bitcoin,fantom,axie-infinity,algorand,tezos&vs_currencies=usd"
 
-  useEffect(()=>{
-    updateStorage(tasks)
-  },[tasks])
+  // Correct typing for fetch function
+  const fetchFn = useCallback((signal?: AbortSignal): void => {
+    setLoading(true)
+    fetch(url, { signal })
+      .then((res) => res.json())
+      .then((data: CryptoPrices) => setInfo(data))
+      .catch((err: Error) => {
+        if (err.name === "AbortError") {
+          console.log("fetch aborted")
+        } else {
+          alert("Something went wrong")
+        }
+      })
+      .finally(() => setLoading(false))
+  }, [])
 
-  
-    return (
-     <>
-      <main className='app'>
-          <h1>To-do Input</h1>
-            <form className='container' onSubmit={handleSubmit}>
-              <input type="text" value={text} onChange={(e)=>setText(e.target.value)}placeholder={editingId?'Enter new Item':"Enter Item to add"} />
-              <button className={`${editingId?"edit":"submit"}`} type='submit'>{editingId?"Update item":"Add Item"}</button>
-            </form>
-            <section className="bottom">
-              <h2>To do list</h2>
-              <ul className='items'>
-              {
-                tasks?.map((item)=>{
-                  return <li key={item.id} className='item'>
+  useEffect(() => {
+    const abortController = new AbortController()
+    fetchFn(abortController.signal)
 
-                  <label  htmlFor={`task-${item.id}`} className={`task ${item.isCompleted?'completed':''}`} >{item.description}</label>
-                  <input id={`task-${item.id}`} hidden onChange={()=>toggleCase(item.id)} type="checkbox"   checked={item.isCompleted}  />
-                  <div className="btns">
-                      
-                      <button onClick={()=>{setText(item.description);
-                        setEditingId(item.id);scroll({
-                          top:0,
-                          behavior:"smooth"
-                        })}}><FaPen size={26} color='green'/></button>
+    return () => abortController.abort()
+  }, [fetchFn])
 
-
-                      <button onClick={()=>dispatch({type:"DELETE",payload:item.id})}><FaTrash size={26} color='red'/></button>
-
-                  </div>
-                </li>
-                })
-              } 
-              </ul>
-              <button className='clear' onClick={()=>dispatch({type:"CLEAR"})}>Clear list</button>
-            </section>
-      </main>
-     </>
+  const filterSearch = Object.entries(info).filter(([name]) =>
+    name.toLowerCase().includes(search)
   )
+
+  return (
+    <main>
+      <h1>🚀 Crypto Currency Price Tracker</h1>
+      <button onClick={() => fetchFn()}>🔄 Refresh Prices</button>
+      <input
+        onChange={(e) => setSearch(e.target.value.trim().toLowerCase())}
+        value={search}
+        type="search"
+        placeholder="Search for cryptoCurrency"
+      />
+
+      <div className="container">
+        {loading && <div className="load">Loading . . .</div>}
+
+        {!loading && filterSearch.length > 0 ? (
+          filterSearch.map(([name, { usd }]) => (
+            <div key={name} className="card">
+              <h2>{name}</h2>
+              <p>Price ${usd.toFixed(2)}</p>
+            </div>
+          ))
+        ) : (
+          !loading && <div className="none">No Currencies Found</div>
+        )}
+      </div>
+    </main>
+
+)
+
+
 }
 
 export default App
